@@ -16,7 +16,6 @@
       height: 100vh;
     }
 
-    /* Page container */
     #page1, #page2 {
       width: 100%;
       height: 100%;
@@ -55,38 +54,63 @@
       max-width: 360px;
       width: 100%;
     }
+
+    .back-button {
+      margin-top: 40px;
+      background: #e2ded6;
+      padding: 16px 32px;
+      border-radius: 18px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .back-button:active {
+      background: #d5d1c9;
+    }
+
   </style>
 </head>
 
 <body>
 
-  <!-- PAGE 1 -->
   <div id="page1" class="active">
     <img src="start.png" alt="Start survey" id="startImage">
   </div>
 
-  <!-- PAGE 2 -->
   <div id="page2">
     <div class="tile-container">
 
       <div class="tile">
-        <img src="adults.png" alt="Adult Survey" onclick="window.location.href='https://www.surveymonkey.com/r/YQ8LQCB'">
+        <img src="adults.png" alt="Adult Survey"
+             onclick="window.location.href='https://www.surveymonkey.com/r/YQ8LQCB'">
       </div>
 
       <div class="tile">
-        <img src="kids.png" alt="Kids Survey" onclick="window.location.href='https://www.surveymonkey.com/r/CZ6J9FK'">
+        <img src="kids.png" alt="Kids Survey"
+             onclick="window.location.href='https://www.surveymonkey.com/r/CZ6J9FK'">
       </div>
 
     </div>
+
+    <div class="back-button" id="backButton">← Back</div>
+
   </div>
 
   <script>
-    // Show Page 2 when the start image is clicked
     document.getElementById("startImage").addEventListener("click", function () {
       document.getElementById("page1").classList.remove("active");
       document.getElementById("page2").classList.add("active");
     });
+
+    document.getElementById("backButton").addEventListener("click", function () {
+      document.getElementById("page2").classList.remove("active");
+      document.getElementById("page1").classList.add("active");
+    });
   </script>
 
 </body>
-</html>
+</html
