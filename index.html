@@ -81,31 +81,28 @@
       background: #d5d1c9;
     }
 
-    .survey-pane {
+    .survey-frame-wrapper {
       width: 100%;
       max-width: 900px;
-      min-height: 70vh;
+      height: 75vh;
       background: #ffffff;
       border-radius: 16px;
       box-shadow: 0 6px 18px rgba(0,0,0,0.12);
       padding: 10px;
       box-sizing: border-box;
-      overflow-y: auto;
     }
 
-    .survey-pane-inner {
+    iframe {
       width: 100%;
       height: 100%;
-    }
-
-    #adultEmbed,
-    #kidsEmbed {
-      display: none;
+      border: none;
+      border-radius: 12px;
+      background: #ffffff;
     }
 
     @media (max-width: 600px) {
-      .survey-pane {
-        min-height: 65vh;
+      .survey-frame-wrapper {
+        height: 70vh;
       }
     }
   </style>
@@ -132,56 +129,10 @@
     <button class="button" id="backToStart">← Back to start</button>
   </div>
 
-  <!-- SCREEN 3: Embedded surveys -->
+  <!-- SCREEN 3: Survey iframe -->
   <div id="screen-survey" class="screen">
-    <div class="survey-pane">
-      <!-- Adult embed -->
-      <div id="adultEmbed" class="survey-pane-inner">
-        <script>
-          (function(t,e,s,n){
-            var o,a,c;
-            t.SMCX=t.SMCX||[];
-            if(!e.getElementById(n)){
-              o=e.getElementsByTagName(s);
-              a=o[o.length-1];
-              c=e.createElement(s);
-              c.type="text/javascript";
-              c.async=!0;
-              c.id=n;
-              c.src="https://widget.surveymonkey.com/collect/website/js/tRaiETqnLgj758hTBazgdzr3Mx3JR4PWfBuQvaxahOH_2BonVVHu6bK2SMkdDukTRF.js";
-              a.parentNode.insertBefore(c,a);
-            }
-          })(window,document,"script","smcx-sdk");
-        </script>
-        <a style="font: 12px Helvetica, sans-serif; color: #999; text-decoration: none;"
-           href="https://www.surveymonkey.com">
-          Create your own user feedback survey
-        </a>
-      </div>
-
-      <!-- Kids embed -->
-      <div id="kidsEmbed" class="survey-pane-inner">
-        <script>
-          (function(t,e,s,n){
-            var o,a,c;
-            t.SMCX=t.SMCX||[];
-            if(!e.getElementById(n)){
-              o=e.getElementsByTagName(s);
-              a=o[o.length-1];
-              c=e.createElement(s);
-              c.type="text/javascript";
-              c.async=!0;
-              c.id=n;
-              c.src="https://widget.surveymonkey.com/collect/website/js/tRaiETqnLgj758hTBazgdzr3Mx3JR4PWfBuQvaxahOFAwiBbQvEBIbaMm7LZEG81.js";
-              a.parentNode.insertBefore(c,a);
-            }
-          })(window,document,"script","smcx-sdk-kids");
-        </script>
-        <a style="font: 12px Helvetica, sans-serif; color: #999; text-decoration: none;"
-           href="https://www.surveymonkey.com">
-          Create your own user feedback survey
-        </a>
-      </div>
+    <div class="survey-frame-wrapper">
+      <iframe id="surveyFrame" title="Show & Tell survey"></iframe>
     </div>
 
     <button class="button" id="startOver">Start over</button>
@@ -197,27 +148,14 @@
     const kidsTile     = document.getElementById('kidsTile');
     const backToStart  = document.getElementById('backToStart');
     const startOverBtn = document.getElementById('startOver');
+    const surveyFrame  = document.getElementById('surveyFrame');
 
-    const adultEmbed   = document.getElementById('adultEmbed');
-    const kidsEmbed    = document.getElementById('kidsEmbed');
+    const ADULT_PAGE = 'adult.html';
+    const KIDS_PAGE  = 'kids.html';
 
     function showScreen(screen) {
       [screenStart, screenChoice, screenSurvey].forEach(s => s.classList.remove('active'));
       screen.classList.add('active');
-    }
-
-    function showAdultSurvey() {
-      adultEmbed.style.display = 'block';
-      kidsEmbed.style.display  = 'none';
-      showScreen(screenSurvey);
-      window.scrollTo(0, 0);
-    }
-
-    function showKidsSurvey() {
-      kidsEmbed.style.display  = 'block';
-      adultEmbed.style.display = 'none';
-      showScreen(screenSurvey);
-      window.scrollTo(0, 0);
     }
 
     // Start → Choice
@@ -225,14 +163,18 @@
       showScreen(screenChoice);
     });
 
-    // Choice → Adult
+    // Choice → Adult survey page (in iframe)
     adultTile.addEventListener('click', () => {
-      showAdultSurvey();
+      surveyFrame.src = ADULT_PAGE;
+      showScreen(screenSurvey);
+      window.scrollTo(0, 0);
     });
 
-    // Choice → Kids
+    // Choice → Kids survey page (in iframe)
     kidsTile.addEventListener('click', () => {
-      showKidsSurvey();
+      surveyFrame.src = KIDS_PAGE;
+      showScreen(screenSurvey);
+      window.scrollTo(0, 0);
     });
 
     // Back to start from choice
@@ -242,12 +184,5 @@
 
     // Start over from survey screen
     startOverBtn.addEventListener('click', () => {
-      // Just go back to the very first screen.
-      // The SurveyMonkey widgets stay loaded but hidden.
-      showScreen(screenStart);
-      window.scrollTo(0, 0);
-    });
-  </script>
-
-</body>
-</html>
+      surveyFrame.src = '';      // clear current survey page
+      showScreen(screenStart);   // back to fir
