@@ -16,7 +16,7 @@
       height: 100vh;
     }
 
-    #page1, #page2 {
+    .screen {
       width: 100%;
       height: 100%;
       display: none;
@@ -28,11 +28,11 @@
       text-align: center;
     }
 
-    #page1.active, #page2.active {
+    .screen.active {
       display: flex;
     }
 
-    img {
+    img.clickable {
       width: 100%;
       max-width: 480px;
       height: auto;
@@ -55,8 +55,16 @@
       width: 100%;
     }
 
-    .back-button {
-      margin-top: 40px;
+    .tile img {
+      width: 100%;
+      height: auto;
+      border-radius: 20px;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    }
+
+    .button {
+      margin-top: 20px;
       background: #e2ded6;
       padding: 16px 32px;
       border-radius: 18px;
@@ -66,51 +74,107 @@
       box-shadow: 0 6px 16px rgba(0,0,0,0.08);
       user-select: none;
       -webkit-user-select: none;
+      border: none;
     }
 
-    .back-button:active {
+    .button:active {
       background: #d5d1c9;
     }
 
+    iframe {
+      width: 100%;
+      max-width: 900px;
+      height: 75vh;
+      border-radius: 16px;
+      border: none;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+      background: white;
+    }
+
+    @media (max-width: 600px) {
+      iframe {
+        height: 70vh;
+      }
+    }
   </style>
 </head>
 
 <body>
 
-  <div id="page1" class="active">
-    <img src="start.png" alt="Start survey" id="startImage">
+  <!-- SCREEN 1: Start -->
+  <div id="screen-start" class="screen active">
+    <img src="start.png" alt="Start survey" class="clickable" id="startImage">
   </div>
 
-  <div id="page2">
+  <!-- SCREEN 2: Choose adult or kids -->
+  <div id="screen-choice" class="screen">
     <div class="tile-container">
-
       <div class="tile">
-        <img src="adults.png" alt="Adult Survey"
-             onclick="window.location.href='https://www.surveymonkey.com/r/YQ8LQCB'">
+        <img src="adults.png" alt="Adult survey" id="adultTile">
       </div>
-
       <div class="tile">
-        <img src="kids.png" alt="Kids Survey"
-             onclick="window.location.href='https://www.surveymonkey.com/r/CZ6J9FK'">
+        <img src="kids.png" alt="Kids survey" id="kidsTile">
       </div>
-
     </div>
 
-    <div class="back-button" id="backButton">← Back</div>
+    <button class="button" id="backToStart">← Back to start</button>
+  </div>
 
+  <!-- SCREEN 3: Embedded survey -->
+  <div id="screen-survey" class="screen">
+    <iframe id="surveyFrame" title="Survey"></iframe>
+
+    <button class="button" id="startOver">Start over</button>
   </div>
 
   <script>
-    document.getElementById("startImage").addEventListener("click", function () {
-      document.getElementById("page1").classList.remove("active");
-      document.getElementById("page2").classList.add("active");
+    const screenStart  = document.getElementById('screen-start');
+    const screenChoice = document.getElementById('screen-choice');
+    const screenSurvey = document.getElementById('screen-survey');
+
+    const startImage   = document.getElementById('startImage');
+    const adultTile    = document.getElementById('adultTile');
+    const kidsTile     = document.getElementById('kidsTile');
+    const backToStart  = document.getElementById('backToStart');
+    const startOverBtn = document.getElementById('startOver');
+    const surveyFrame  = document.getElementById('surveyFrame');
+
+    const ADULT_URL = 'https://www.surveymonkey.com/r/YQ8LQCB';
+    const KIDS_URL  = 'https://www.surveymonkey.com/r/CZ6J9FK';
+
+    function showScreen(screen) {
+      [screenStart, screenChoice, screenSurvey].forEach(s => s.classList.remove('active'));
+      screen.classList.add('active');
+    }
+
+    // Start → Choice
+    startImage.addEventListener('click', () => {
+      showScreen(screenChoice);
     });
 
-    document.getElementById("backButton").addEventListener("click", function () {
-      document.getElementById("page2").classList.remove("active");
-      document.getElementById("page1").classList.add("active");
+    // Choice → Adult survey
+    adultTile.addEventListener('click', () => {
+      surveyFrame.src = ADULT_URL;
+      showScreen(screenSurvey);
+    });
+
+    // Choice → Kids survey
+    kidsTile.addEventListener('click', () => {
+      surveyFrame.src = KIDS_URL;
+      showScreen(screenSurvey);
+    });
+
+    // Back to start from choice screen
+    backToStart.addEventListener('click', () => {
+      showScreen(screenStart);
+    });
+
+    // Start over from survey screen
+    startOverBtn.addEventListener('click', () => {
+      surveyFrame.src = '';          // clear current survey
+      showScreen(screenStart);       // go back to first screen
     });
   </script>
 
 </body>
-</html
+</html>
