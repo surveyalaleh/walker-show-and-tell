@@ -32,22 +32,13 @@
       display: flex;
     }
 
-    img.clickable {
-      width: 100%;
-      max-width: 480px;
-      height: auto;
-      border-radius: 20px;
-      cursor: pointer;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-    }
-
-    .tile-container {
+    .tile-grid {
       display: flex;
-      flex-direction: row;
-      gap: 40px;
       flex-wrap: wrap;
       justify-content: center;
-      margin-top: 20px;
+      gap: 24px;
+      max-width: 960px;
+      width: 100%;
     }
 
     .tile {
@@ -109,23 +100,36 @@
 
 <body>
 
-  <!-- SCREEN 1: Start -->
-  <div id="screen-start" class="screen active">
-    <img src="start.png" alt="Start survey" class="clickable" id="startImage">
-  </div>
-
-  <!-- SCREEN 2: Choose adult or kids -->
-  <div id="screen-choice" class="screen">
-    <div class="tile-container">
+  <!-- SCREEN 1: Language selection -->
+  <div id="screen-lang" class="screen active">
+    <div class="tile-grid">
       <div class="tile">
-        <img src="adults.png" alt="Adult survey" id="adultTile">
+        <img src="enstart.png" alt="English survey" id="langEn">
       </div>
       <div class="tile">
-        <img src="kids.png" alt="Kids survey" id="kidsTile">
+        <img src="spstart.png" alt="Spanish survey" id="langSp">
+      </div>
+      <div class="tile">
+        <img src="smstart.png" alt="Somali survey" id="langSm">
+      </div>
+      <div class="tile">
+        <img src="hmnstart.png" alt="Hmong survey" id="langHmn">
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: Adult/Kids choice for selected language -->
+  <div id="screen-choice" class="screen">
+    <div class="tile-grid">
+      <div class="tile">
+        <img src="enadult.png" alt="Adult survey" id="adultTile">
+      </div>
+      <div class="tile">
+        <img src="enkids.png" alt="Kids survey" id="kidsTile">
       </div>
     </div>
 
-    <button class="button" id="backToStart" style="margin-top: 30px;">← Back to start</button>
+    <button class="button" id="backToLang" style="margin-top: 30px;">← Back to language</button>
   </div>
 
   <!-- SCREEN 3: Survey iframe -->
@@ -141,60 +145,108 @@
   </div>
 
   <script>
-    const screenStart  = document.getElementById('screen-start');
-    const screenChoice = document.getElementById('screen-choice');
-    const screenSurvey = document.getElementById('screen-survey');
+    const screenLang    = document.getElementById('screen-lang');
+    const screenChoice  = document.getElementById('screen-choice');
+    const screenSurvey  = document.getElementById('screen-survey');
 
-    const startImage   = document.getElementById('startImage');
-    const adultTile    = document.getElementById('adultTile');
-    const kidsTile     = document.getElementById('kidsTile');
-    const backToStart  = document.getElementById('backToStart');
+    const langEn        = document.getElementById('langEn');
+    const langSp        = document.getElementById('langSp');
+    const langSm        = document.getElementById('langSm');
+    const langHmn       = document.getElementById('langHmn');
+
+    const adultTile     = document.getElementById('adultTile');
+    const kidsTile      = document.getElementById('kidsTile');
+
+    const backToLangBtn   = document.getElementById('backToLang');
     const backToChoiceBtn = document.getElementById('backToChoice');
-    const startOverBtn = document.getElementById('startOver');
-    const surveyFrame  = document.getElementById('surveyFrame');
+    const startOverBtn    = document.getElementById('startOver');
+    const surveyFrame     = document.getElementById('surveyFrame');
 
-    const ADULT_PAGE = 'adult.html';
-    const KIDS_PAGE  = 'kids.html';
+    // Map language → images + survey pages
+    const LANG_CONFIG = {
+      en: {
+        adultImg: 'enadult.png',
+        kidsImg:  'enkids.png',
+        adultPage: 'adult-en.html',
+        kidsPage:  'kids-en.html'
+      },
+      sp: {
+        adultImg: 'spadult.png',
+        kidsImg:  'spkids.png',
+        adultPage: 'adult-sp.html',
+        kidsPage:  'kids-sp.html'
+      },
+      sm: {
+        adultImg: 'smadult.png',
+        kidsImg:  'smkids.png',
+        adultPage: 'adult-sm.html',
+        kidsPage:  'kids-sm.html'
+      },
+      hmn: {
+        adultImg: 'hmnadult.png',
+        kidsImg:  'hmnkids.png',
+        adultPage: 'adult-hmn.html',
+        kidsPage:  'kids-hmn.html'
+      }
+    };
+
+    let currentLang = null;
 
     function showScreen(screen) {
-      [screenStart, screenChoice, screenSurvey].forEach(s => s.classList.remove('active'));
+      [screenLang, screenChoice, screenSurvey].forEach(s => s.classList.remove('active'));
       screen.classList.add('active');
     }
 
-    // Start → Choice
-    startImage.addEventListener('click', () => {
+    function selectLanguage(langKey) {
+      currentLang = langKey;
+      const cfg = LANG_CONFIG[langKey];
+
+      // Update adult/kids images for this language
+      adultTile.src = cfg.adultImg;
+      kidsTile.src  = cfg.kidsImg;
+
       showScreen(screenChoice);
-    });
+      window.scrollTo(0, 0);
+    }
 
-    // Choice → Adult survey page (in iframe)
+    // Language tile clicks
+    langEn.addEventListener('click', () => selectLanguage('en'));
+    langSp.addEventListener('click', () => selectLanguage('sp'));
+    langSm.addEventListener('click', () => selectLanguage('sm'));
+    langHmn.addEventListener('click', () => selectLanguage('hmn'));
+
+    // Adult/Kids tile clicks → load correct survey page in iframe
     adultTile.addEventListener('click', () => {
-      surveyFrame.src = ADULT_PAGE;
+      if (!currentLang) return;
+      surveyFrame.src = LANG_CONFIG[currentLang].adultPage;
       showScreen(screenSurvey);
       window.scrollTo(0, 0);
     });
 
-    // Choice → Kids survey page (in iframe)
     kidsTile.addEventListener('click', () => {
-      surveyFrame.src = KIDS_PAGE;
+      if (!currentLang) return;
+      surveyFrame.src = LANG_CONFIG[currentLang].kidsPage;
       showScreen(screenSurvey);
       window.scrollTo(0, 0);
     });
 
-    // Back to start from choice
-    backToStart.addEventListener('click', () => {
-      showScreen(screenStart);
+    // Back to language selection
+    backToLangBtn.addEventListener('click', () => {
+      showScreen(screenLang);
+      window.scrollTo(0, 0);
     });
 
-    // NEW: Back from survey to choice screen
+    // Back from survey → language-specific Adult/Kids choice
     backToChoiceBtn.addEventListener('click', () => {
       showScreen(screenChoice);
       window.scrollTo(0, 0);
     });
 
-    // Start over from survey screen
+    // Start over → reset everything
     startOverBtn.addEventListener('click', () => {
-      surveyFrame.src = '';      // clear current survey page
-      showScreen(screenStart);   // back to first screen
+      surveyFrame.src = '';
+      currentLang = null;
+      showScreen(screenLang);
       window.scrollTo(0, 0);
     });
   </script>
